@@ -203,11 +203,13 @@ public class MovingObject extends SolidObject{
 
         interceptor.setObjVSpeed(   (Math.sin(Theta)    )  *   desiredActualSpeed   );
 
+        /**
         System.out.println("Theta: "+Theta+" HSpeed: "+interceptor.getObjHSpeed()+ "VSpeed: "+interceptor.getObjVSpeed()+
 
                         " cosine: "+Math.cos(Theta)+" sin: "+Math.sin(Theta)
                         +" Target ("+ target.getActualPosX()+ ", "+target.getActualPosY()+")"
                 );
+         */
 
     }
 

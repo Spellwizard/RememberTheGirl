@@ -30,16 +30,14 @@ public class devTools {
      * @param roundCount
      * @param graphicsOn
      * @param gameMap
-     * @param minerBuildingArrayList
      * @param buildingsList
-     * @param oreList
      * @param playerList
      * @param frogList
      */
     protected void drawScorebaord(Graphics2D gg, int framecount, int frameSeconds, int frameMinutes
                                          , int roundCount, boolean graphicsOn,
                                          Map gameMap,
-                                         ArrayList<Building> buildingsList, ArrayList<Ore> oreList,
+                                         ArrayList<Building> buildingsList,
                                          ArrayList<Player> playerList, ArrayList<Frog> frogList
             ){
             //  SCOREBOARD
@@ -116,16 +114,6 @@ public class devTools {
                         }
 
 
-
-                    if(oreList!=null)
-                        for(Ore john: oreList) {
-                            String line = "Ore: "+getVars_SolidObject(john,gameMap,true, false, true,
-                                    false, true);
-                            gg.drawString(line
-                                    , 50, 50+posy);
-                            posy+=15;
-                        }
-
                     /**
                      * make some text on screen with some detail for the object list of the buildings
                      */
@@ -137,10 +125,6 @@ public class devTools {
                                     , 50, 50+posy);
                             posy+=15;
                         }
-
-
-
-
                 }
             }
 

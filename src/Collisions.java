@@ -111,22 +111,13 @@ public class Collisions {
 
 
 
-    protected static void calcBuildingCollisions(ArrayList<Ore> oreList, Map gameMap,
-                                                 ArrayList<Building> buildingsList, ArrayList<DroppedItem> droppedItemsList, ArrayList<Player> playerList){
-        if(buildingsList!=null&&droppedItemsList!=null){
+    protected static void calcBuildingCollisions( Map gameMap,
+                                                 ArrayList<Building> buildingsList, ArrayList<Player> playerList){
+        if(buildingsList!=null){
             //Compare each building against the list of moving objects
             //this is going to typically be any dropped items (dropped items do include items on conveyors)
             //additionally this will be the player too
             for(Building building: buildingsList){
-
-                //Calc collisions with dropped items
-                //this is primarly (entirely) used by the conveyor class
-                for(DroppedItem droppedItem: droppedItemsList){
-
-                    if(building.isCollision(droppedItem,gameMap)){
-                        building.calcCollsion(droppedItem);
-                    }
-                }
 
                 building.calcMovingCollision(playerList.get(0), gameMap);
 

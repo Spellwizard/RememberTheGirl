@@ -42,8 +42,6 @@ public class MainSecond {
                         ouputData.addLine("funny");
                     }
 
-                    System.out.println("Def this runs");
-
                     ouputData.addLine("Funny;");
 
                     Menu.makeVisible();
@@ -55,10 +53,13 @@ public class MainSecond {
     }
     class GameCanvas extends JComponent {
 
-        private Pipe defaultPipe;
 
-        //default list of ores
-        private IronOre defaultIron;
+        private int linex1 = 0;
+        private int liney1= 0;
+        private int linex2 = 0;
+        private int liney2 =0;
+
+        private Pipe defaultPipe;
 
         //General World Settings
         private boolean gamePaused = false; // this is a toggle for the 'p' button to pause all movement players and arrows at the time of creation but potentially enemies
@@ -66,7 +67,6 @@ public class MainSecond {
         private boolean graphicsOn = true;
 
         private int initPopulationSize;//used as the beginning population of the frogs
-
 
 
 
@@ -95,10 +95,6 @@ public class MainSecond {
          * Dynamic arraylist of all the buildings that are currently built
          */
         private ArrayList<Building> buildingsList  = new ArrayList<>();
-
-        private ArrayList<Ore> oreList = new ArrayList<>();
-
-        private ArrayList<DroppedItem> droppedItemsList;
 
         public ArrayList<String> getDateOutput() {
             return dateOutput;
@@ -144,7 +140,7 @@ public class MainSecond {
 
             gameMap = new Map(0,0,400,400,
                     map_width, map_height, tile_width, tile_height,
-                    1, 0);
+                    0, 0);
 
             InitializeDefaultValues();
 
@@ -157,10 +153,6 @@ public class MainSecond {
 
             firstTimeinitialization();
         }
-
-
-
-
 
         /**
          * The InputTracker is used to track keyboard actions as both listed under the developer commands and the
@@ -363,8 +355,6 @@ public class MainSecond {
                      * the last on on the list gets to draw over everyone else and thus will appear if overlapping with another object
                      */
 
-                    Ore.drawOre(gg,oreList,gameMap);
-
                     Building.drawBuildings(gg, buildingsList, gameMap);
 
                     Frog.drawFrog(gg, frogList, gameMap, !gamePaused, playerList);
@@ -376,8 +366,11 @@ public class MainSecond {
 
                     if(developerTool.isDebug())developerTool.drawScorebaord(gg, framecount, frameSeconds, frameMinutes
                             , roundCount, graphicsOn, gameMap, buildingsList,
-                            oreList, playerList, frogList
+                        playerList, frogList
                     );
+
+
+
 
                     gameMap.calcGravity_ArrayList(playerList);
 
@@ -403,9 +396,20 @@ public class MainSecond {
 
                     }
 
-                    repaint();
+                   // repaint();
+                    linex2 = (playerList.get(0).getPosX()/gameMap.getMapWidth());
+                    liney2 = (playerList.get(0).getPosY()/gameMap.getMapHeight());
+
+                    gg.setColor(Color.black);
+
+                    System.out.println("");
+
+                    gg.drawLine(linex1,liney1,linex2,liney2);
+
                 }
-            }}
+            }
+
+        }
 
         public void calcNewRound(){
             //this is run to populate a new round
@@ -423,8 +427,6 @@ public class MainSecond {
         protected void calcCollisions(){
 
             Collisions.calcPlayerCollisions(playerList,frogList,gameMap);
-
-            Collisions.calcBuildingCollisions(oreList, gameMap,buildingsList,droppedItemsList,playerList);
 
             Collisions.calcFrogPlayerCollisions(playerList,frogList,gameMap);
 
@@ -471,9 +473,6 @@ public class MainSecond {
             playerList = new ArrayList<>();
 
             buildingsList = new ArrayList<>();
-
-
-            droppedItemsList = new ArrayList<>();
 
             graphicsOn = true;
 
@@ -543,8 +542,12 @@ public class MainSecond {
 
                             if (john.getWeaponList() != null) {
 
-                                john.calcMousePressedWeaponListKeys(e);
+                                john.calcMousePressedWeaponListKeys();
 
+
+
+                                linex1 = e.getX();
+                                liney1 = e.getY();
                             }
 
                         }
@@ -569,7 +572,7 @@ public class MainSecond {
 
                             if (john.getWeaponList() != null) {
 
-                                john.calcMouseReleasedWeaponListKeys(e);
+                                john.calcMouseReleasedWeaponListKeys();
 
                             }
 

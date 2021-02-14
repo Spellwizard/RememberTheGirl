@@ -439,29 +439,6 @@ public class Player extends Plane {
     }
 
 
-
-    /**
-     *
-     * @return an arraylist containing the defaulted belt list of the player's belt
-     */
-    protected static ArrayList<BeltSlot> intializeBelt(){
-
-        ArrayList<BeltSlot> list = new ArrayList<>();
-
-        list.add(new BeltSlot( 49, new Color(255, 15, 0), null,false));
-
-        list.add(new BeltSlot(50, new Color(57, 255, 0), null,true));
-
-        list.add(new BeltSlot(51, new Color(255, 24, 217) , null,false));
-
-        list.add(new BeltSlot(52, new Color(70, 255, 184),null,false ));
-
-        list.add(new BeltSlot(53, new Color(109, 121, 255), null,false));
-
-        return list;
-    }
-
-
     //given a 2d Graphics graw the object in reference to viewX and viewY of the MapView
     //Eg: object 0,0 and the mapview 1,1
     //draw the object @ -1,-1
@@ -622,54 +599,48 @@ public class Player extends Plane {
      * @param pointy
      */
     private void calcPlayerFire(Point pointy, Map map){
-        if(weaponList!=null){
 
-            for(LongRangedWeapon weapon: weaponList){
+                if(selectedWeapon!=null){//good to safety check
 
-                if(weapon!=null){
+                    //check status to see if the weapon is firing
+                    if(selectedWeapon.isPressed()) {
 
-                    if(weapon.isPressed()){
+                        //Need to check the cooldown b/c if we are still cooling down then we will need a cooldown first
+                        if (selectedWeapon.getFireCooldown() < 0) {
 
-                        if(weapon.getFireCooldown()<0){
+                            if (getProjectileArrayList() != null && selectedWeapon != null) {//good to safety check
 
-                            if(getProjectileArrayList()!=null&&selectedWeapon!=null){
                                 mouseLocation = pointy;
 
-                               //use the selected projectile to get an arraylist of the projectiles resulted
+                                //use the selected projectile to get an arraylist of the projectiles resulted
                                 //and then add each one to the player projectile list
-                                for(
-                                        Projectile a
-                                        :
-                                        selectedWeapon.
-                                                calcPlayerShotMouseClick(    pointy  ,map,   this)){
+
+                                for (Projectile a : selectedWeapon.
+
+                                        calcPlayerShotMouseClick(
+                                                pointy, map, this, false
+                                        )) {
 
                                     getProjectileArrayList().add(a);
                                 }
+                            }// getProjectileArrayList()!=null&&selectedWeapon!=null
 
-                            }
                             //then reset the firing cooldown which helps stop the firing being a constant stream of shots
-                            weapon.setFireCooldown(weapon.getTOTALFIRECOOLDOWN());
-                        }
-                        else{
+                            selectedWeapon.setFireCooldown(selectedWeapon.getTOTALFIRECOOLDOWN());
+
+                             }
+
+                        else {
                             //reduced the cooldown regardless if the player is pressing the mouse button to allow the player to start shooting again
-                            weapon.setFireCooldown(weapon.getFireCooldown()-1);
+                            selectedWeapon.increment_cooldownWeapon();
                         }
 
 
                     }
 
-
-                }
-
-
-
             }
 
-
-        }
-
-
-    }
+    } //end of function
 
     /**
      *
@@ -754,17 +725,17 @@ public class Player extends Plane {
 
 }
 
-    protected void recoverSprint(){
+    protected void recoverSprint() {
 
 
-        if(super.getObjVSpeed()==0&&super.getObjHSpeed()==0
-        ){
+        if (super.getObjVSpeed() == 0 && super.getObjHSpeed() == 0
+        ) {
             currentSprintCount += abs(SprintRecoverySpeed);
         }
 
         //standard safety checks to not exceed boundries of max and min
-        if(currentSprintCount<0)currentSprintCount=0;
-        if(currentSprintCount>MAXSPRINTSPEED)currentSprintCount=MAXSPRINTSPEED;
+        if (currentSprintCount < 0) currentSprintCount = 0;
+        if (currentSprintCount > MAXSPRINTSPEED) currentSprintCount = MAXSPRINTSPEED;
 
     }
 
@@ -798,7 +769,7 @@ public class Player extends Plane {
                     Projectile a = john.getProjectileArrayList().get(i);
 
                     //  a.setUp_Image(defaultCoal.getUp_Image());
-                    //only draw the object if it collides with the map to prevent unneccessary clutter
+                    //only draw the object if it collides with the map to prevent unnecessary clutter
 
                     if (a != null) {
                         if (calcmovment){
@@ -817,7 +788,6 @@ public class Player extends Plane {
                             //then if they exceeded any border then loop them around the value
 
                             a.drawobj(gg, maps);
-
                         }
                     }
                 }
@@ -955,34 +925,31 @@ public class Player extends Plane {
     }
 
 
-    protected void calcMousePressedWeaponListKeys(MouseEvent m){
-
-      if(selectedWeapon!=null){
-
+    /**
+     * This function is called whenever the player is in 'firing' mode and the current selected weapon should be activated
+     */
+    protected void calcMousePressedWeaponListKeys(){
+      if(selectedWeapon!=null){//always good to safety check
+          //set the weapon firing status to on
           selectedWeapon.setPressed(true);
-
       }
-
-
     }
 
-    protected void calcMouseReleasedWeaponListKeys(MouseEvent m){
-
-        if(weaponList!=null){
-
+    /**
+     * This function is called whenever the player is wants to turn off the weapon
+     */
+    protected void calcMouseReleasedWeaponListKeys(){
+        if(weaponList!=null){//always good to safety check
+            //loop through all weapons (just in case)
             for(LongRangedWeapon weapon: weaponList){
 
-
-                if(weapon!=null){
-
+                if(weapon!=null){//always good to safety check
+                    //then turn off each weapon
                     weapon.setPressed(false);
 
                 }
-
             }
-
         }
-
     }
 
 

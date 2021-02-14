@@ -68,47 +68,148 @@ public class LongRangedWeapon{
 
 
     /**
+     * To allow proper testing and easy reverse usage -
+     * adding a simple function that then based on an added boolan calls another function
+     */
+    protected ArrayList<Projectile> calcPlayerShotMouseClick(Point m, Map map, SolidObject shooter,boolean useOriginalFunction) {
+
+        if(useOriginalFunction){
+            return calcPlayerShotMouseClick_original(m,map,shooter);
+        }
+        else{
+            return calcPlayerShotMouseClick_line(m,map,shooter);
+        }
+
+    }
+
+    /**
+         *
+         * @param m - the desired shot location
+         * @param map - the map the shot should be factored on
+         * @param shooter the object from which the shot is calculated from
+         */
+        protected ArrayList<Projectile> calcPlayerShotMouseClick_original(Point m, Map map, SolidObject shooter) {
+
+            //clear / init the projectile list array
+            //This ensures we don't get any function situations of adding a projectile to the overall projectile list twice
+            ArrayList<Projectile> projectileShots = new ArrayList<>();
+
+            //always good safety checks to not call stuff that is not initialized
+            if (m != null & map != null) {
+
+
+                /**
+                 * Set the X,Y position of the projectile starting position
+                 *
+                 * ... this has caused me no end of grief and has undergone multiple rewrites -
+                 *
+                 * the 2/14/2021 attempt will try to back up a step and draw a line then have the projectile try to follow the line as close as possible
+                 */
+                //The PosX of where the projectile starts -
+                //this took more than a bit of revision and we are using a double to help keep the overall computation down but allow for more finesse direction than the grid square sizes allow
+                double posx = shooter.getActualPosX()
+                        + (shooter.getObjWidth() * (map.getTileWidth()) / 2);
+
+                //POSition Y - starting projectile value
+                double posy = shooter.getActualPosY()
+                        + ((shooter.getObjHeight() * map.getTileHeight()) / 2);
+
+
+                //this is an eye at maybe after getting the accuracy setup, to then add some inaccuracy and maybe a shotgun type weapon with multiple projectiles per shot
+                for(int i = 0; i< shotCount;i++) {
+
+                    //Initilize tango which is used as a base
+                    Projectile tango = new Projectile(posx, posy, 1, 1, Color.orange,
+                            0, 0, false, 0, 0, 0);
+
+                    //this feels un necessary and it probably is
+                    //OverridingValuesClass.OverrideProjectile(tango, this.getDefaultProjectile());
+
+                    /** - Removed as it seems unneeded since when calling the clase we already set this up
+                     //set the x,y starting position which is typically in the vicinity of the shooter
+                     tango.setPosX(posx);
+                     tango.setPosY(posy);
+                     */
+
+                    //move the projectile towards the desired target
+                    /**
+                     *
+                     * @param map - the map
+                     * @param x - the object to move towards
+                     * @param y - the y position of the object to move towards
+                     *
+                     * @param desiredActualSpeed the desired speed hypotentuse to set the speed of the interceptor
+                     *
+                     * There is an inherent variablity due to the nature of the calculation simply looping to the max and min of the hypotenuse by scalling with 1.001
+                     * but it seems to work so 'why fix it if it ain't broke'?
+                     */
+
+                    tango.moveTowards(map, m.getX(), m.getY(),
+                            (   this.getDefaultProjectile().getMaxSpeed()  )
+                    );
+
+                    //finally actually add the projectile to the answer array
+                    projectileShots.add(tango);
+
+                }
+
+            }
+            else{
+                System.out.println("Error shooting: "+(m!=null)+", "+(map!=null));
+            }
+
+            return projectileShots;
+    }
+
+
+    /**
      *
      * @param m - the desired shot location
      * @param map - the map the shot should be factored on
      * @param shooter the object from which the shot is calculated from
      */
-    protected ArrayList<Projectile> calcPlayerShotMouseClick(Point m, Map map, SolidObject shooter) {
+    protected ArrayList<Projectile> calcPlayerShotMouseClick_line(Point m, Map map, SolidObject shooter) {
 
-
+        //clear / init the projectile list array
+        //This ensures we don't get any function situations of adding a projectile to the overall projectile list twice
         ArrayList<Projectile> projectileShots = new ArrayList<>();
 
+        //always good safety checks to not call stuff that is not initialized
         if (m != null & map != null) {
 
 
-
-            //Set the X,Y position of the projectile starting position
+            /**
+             * Set the X,Y position of the projectile starting position
+             *
+             * ... this has caused me no end of grief and has undergone multiple rewrites -
+             *
+             * the 2/14/2021 attempt will try to back up a step and draw a line then have the projectile try to follow the line as close as possible
+             */
+            //The PosX of where the projectile starts -
+            //this took more than a bit of revision and we are using a double to help keep the overall computation down but allow for more finesse direction than the grid square sizes allow
             double posx = shooter.getActualPosX()
-                    + (shooter.getObjWidth() * (map.getTileWidth()) / 2)
-                    ;
+                    + (shooter.getObjWidth() * (map.getTileWidth()) / 2);
 
+            //POSition Y - starting projectile value
             double posy = shooter.getActualPosY()
-                    +
-                    (
-                        (
-                           shooter.getObjHeight() * map.getTileHeight()
-                        )
-                                /
-                                2
-                     )
+                    + ((shooter.getObjHeight() * map.getTileHeight()) / 2);
 
-                    ;
 
+            //this is an eye at maybe after getting the accuracy setup, to then add some inaccuracy and maybe a shotgun type weapon with multiple projectiles per shot
             for(int i = 0; i< shotCount;i++) {
 
+                //Initilize tango which is used as a base
                 Projectile tango = new Projectile(posx, posy, 1, 1, Color.orange,
                         0, 0, false, 0, 0, 0);
 
-                OverridingValuesClass.OverrideProjectile(tango, this.getDefaultProjectile());
+                //this feels un necessary and it probably is
+                //OverridingValuesClass.OverrideProjectile(tango, this.getDefaultProjectile());
 
-                //set the x,y starting position which is typically in the vicinity of the shooter
-                tango.setPosX(posx);
-                tango.setPosY(posy);
+                /** - Removed as it seems unneeded since when calling the clase we already set this up
+                 //set the x,y starting position which is typically in the vicinity of the shooter
+                 tango.setPosX(posx);
+                 tango.setPosY(posy);
+                 */
 
                 //move the projectile towards the desired target
                 /**
@@ -123,11 +224,9 @@ public class LongRangedWeapon{
                  * but it seems to work so 'why fix it if it ain't broke'?
                  */
 
-                tango.moveTowards(map,
-                        m.getX(),
-                      m.getY(),
+                tango.moveTowards(map, m.getX(), m.getY(),
                         (   this.getDefaultProjectile().getMaxSpeed()  )
-                        );
+                );
 
                 //finally actually add the projectile to the answer array
                 projectileShots.add(tango);
@@ -142,6 +241,10 @@ public class LongRangedWeapon{
         return projectileShots;
     }
 
+    //Per the weapons own increment (eg by 1 or 3), cool down the weapon
+    public void increment_cooldownWeapon(){
+        FireCooldown--;
+    }
 
     public int getMouseClick() {
         return MouseClick;
