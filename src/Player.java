@@ -25,9 +25,9 @@ public class Player extends Plane {
     private int killCount; // used to track the bloody massacre of the player
 
     //Used in the implenetation + tracking of a sprint function
-    private boolean isRunning; // tracks if the player is currently sprinting
+    private boolean isHovering; // tracks if the player is currently sprinting
     private int MAXSPRINTSPEED=100; // the full 'bar' / amt of sprint the player has; (called to display max sprint value)
-    private double currentSprintCount = MAXSPRINTSPEED;// used to track the actual sprint value (called to display current sprint value)
+    private double currentHoverCount = MAXSPRINTSPEED;// used to track the actual sprint value (called to display current sprint value)
     private double SprintIncrease = 2;//the cost of sprinting value used
     private double SprintRecoverySpeed = .20;//the value assigned to recovery of the sprint
 
@@ -114,7 +114,7 @@ public class Player extends Plane {
         int posY = m.getY() + maps.getViewY();
 
         //determine what checkerboard position was ch
-        SolidObject sub_output = maps.CollidedTile(posX, posY, maps);
+        SolidObject sub_output = maps.CollidedTile(posX, posY);
         Building output = null;
 
         //then convert the output to an object
@@ -180,7 +180,7 @@ public class Player extends Plane {
 
         drawKillCount(gg);
 
-        drawSprintBar(gg,maps);
+        drawHoverBar(gg,maps);
 
     }
 
@@ -492,7 +492,7 @@ public class Player extends Plane {
      * @param gg - graphics to draw on
      * Draw the health of the player
      */
-    private void drawSprintBar(Graphics2D gg, Map maps){
+    private void drawHoverBar(Graphics2D gg, Map maps){
 
         //this is the assumption of how large the player health can be
         int SizeIncreaser = 2;
@@ -512,10 +512,10 @@ public class Player extends Plane {
                         *SizeIncreaser,height);
 
         //Draw the actual health
-        gg.setColor(Color.yellow);
+        gg.setColor(Color.blue);
         gg.fillRect(x,y,
                 (
-                        (int)Math.round(currentSprintCount)
+                        (int)Math.round(currentHoverCount)
                 )
                 *SizeIncreaser,height);
 
@@ -533,13 +533,16 @@ public class Player extends Plane {
 
         gg.setColor(Color.black);
 
-        gg.drawString("Stamina"
+        gg.drawString("HoverTime"
                 , x, y+height);
 
 
     }
 
-
+    /**
+     * 
+     * @param gg
+     */
     protected void drawKillCount(Graphics2D gg){
 
         int height = 25;
@@ -564,11 +567,6 @@ public class Player extends Plane {
         gg.drawString(
                 description+value
                 , x, y+height);
-
-
-
-
-
 
     }
 
@@ -645,18 +643,16 @@ public class Player extends Plane {
     /**
      *
      * @param gg
-     * @param list
      * @param maps
      * @param calcmovment
      * @param pointy
      */
-    protected static void drawPlayers(Graphics2D gg, ArrayList<Player> list,
+    protected static void drawPlayers(Graphics2D gg,  Player a,
                                       Map maps, boolean calcmovment, Point pointy){
 
         //safety check
-        if(list!=null){
             //Loop through each object in the arraylist
-            for(Player a: list){
+
                 //  a.setUp_Image(defaultCoal.getUp_ImageF());
                 //only draw the object if it collides with the map to prevent unneccessary clutter
                 if(a!=null){
@@ -669,6 +665,9 @@ public class Player extends Plane {
 
                     //Only actually move the player if movement is enabled
                         if(calcmovment)a.calcMovement();
+
+                        if(a.getPosY()<0)a.setPosY(0);
+                        if(a.getPosY()+a.getObjHeight()>maps.getMapHeight())a.setPosY(maps.getMapHeight()-a.getObjHeight());
 
                         //Draw that players projectiles
                         Player.drawPlayersProjectiles(gg,a,maps,calcmovment);
@@ -692,50 +691,38 @@ public class Player extends Plane {
                             a.setObjHeight(h);
                         }
 
-
-            }}
         }
     }
 
     @Override
     public void calcMovement(){
 
-        if(isRunning
-        ){
+        if(isHovering&& currentHoverCount >0){
+                //need to slowly remove the bar otherwise it might not have the bar
+                currentHoverCount -= .01;
 
-            double H = this.getObjHSpeed();
-            double V = this.getObjVSpeed();
-
-            this.setObjVSpeed(V*getSprintIncrease());
-            this.setObjHSpeed(H*getSprintIncrease());
-            super.calcMovement();
-
-            this.setObjVSpeed(V);
-        this.setObjHSpeed(H);
-
-        currentSprintCount-=-.01;
-
-        recoverSprint();
+                recoverHover();
     }
         else{
+            recoverHover();
         super.calcMovement();
-        recoverSprint();
+
     }
-
-
 }
 
-    protected void recoverSprint() {
+    /**
+     * Program called to determine if the player should be recovering from sprinting
+     */
+    protected void recoverHover() {
 
-
-        if (super.getObjVSpeed() == 0 && super.getObjHSpeed() == 0
+        if (getObjVSpeed()>0
         ) {
-            currentSprintCount += abs(SprintRecoverySpeed);
+            currentHoverCount += abs(SprintRecoverySpeed);
         }
 
         //standard safety checks to not exceed boundries of max and min
-        if (currentSprintCount < 0) currentSprintCount = 0;
-        if (currentSprintCount > MAXSPRINTSPEED) currentSprintCount = MAXSPRINTSPEED;
+        if (currentHoverCount < 0) currentHoverCount = 0;
+        if (currentHoverCount > MAXSPRINTSPEED) currentHoverCount = MAXSPRINTSPEED;
 
     }
 
@@ -825,15 +812,13 @@ public class Player extends Plane {
      * This will move the plane on a speed fom the planes default speed value
      *
      */
-    protected static void calcPlayerReleasedInput(KeyEvent e, ArrayList<Player> playerList){
+    protected static void calcPlayerReleasedInput(KeyEvent e, Player self){
 
         int key = e.getKeyCode();
 
         /**
          * Loop through each plane in the arraylist and handle the relevant action if any match each individuals list of actions
          */
-
-        for(Player self: playerList){
 
             //UP Key
             if(self.getButtonUp()==key){
@@ -847,32 +832,39 @@ public class Player extends Plane {
                     //handle moving the plane / player in the requested direction
                     //Move the player up by absolute of the default value
 
-                    self.setObjVSpeed(0);
+                    //I want the player to have to adjust when flying down,
+                    //I want the player to only get movement downwards cut by a third of the max speed
+                    self.setObjVSpeed(
+                            self.getObjVSpeed()/3
+                    );
                 }
 
 
+                /**
+                 * IN ORDER TO ALLOW FOR CONSTANT SIDE SCROLLING, DISABLING ON RELEASE PLAYER STOPS MOVING
+                 */
                 else //LEFT Key
                     if(self.getButtonLeft()==key){
                         //handle moving the plane / player in the requested direction
                         //Move the player left by negativify an absolute of the default value
 
-                        self.setObjHSpeed(0);
+                        //self.setObjHSpeed(0);
                     }
                     else //RIGHT Key
                         if(self.getButtonRight()==key){
                             //handle moving the plane / player in the requested direction
                             //Move the player right an absolute of the default speed value
 
-                            self.setObjHSpeed(0);
+                           // self.setObjHSpeed(0);
                         }
 
                         //SPRINTING
                         else if(self.getButtonSprint()==key){
-                            self.setRunning(false);
+                            self.setHovering(false);
                         }
 
             self.calcMovement();
-        }
+
 
     }
 
@@ -919,7 +911,7 @@ public class Player extends Plane {
                         //SPRINTING
                         else if(this.getButtonSprint()==key){
 
-                            this.setRunning(true);
+                            this.setHovering(true);
                         }
 
     }
@@ -1112,12 +1104,12 @@ protected void addOneKill(){
     }
 
 
-    public boolean isRunning() {
-        return isRunning;
+    public boolean isHovering() {
+        return isHovering;
     }
 
-    public void setRunning(boolean running) {
-        isRunning = running;
+    public void setHovering(boolean hovering) {
+        isHovering = hovering;
     }
 
     public int getMAXSPRINTSPEED() {
@@ -1128,12 +1120,12 @@ protected void addOneKill(){
         this.MAXSPRINTSPEED = MAXSPRINTSPEED;
     }
 
-    public double getCurrentSprintCount() {
-        return currentSprintCount;
+    public double getCurrentHoverCount() {
+        return currentHoverCount;
     }
 
-    public void setCurrentSprintCount(double currentSprintCount) {
-        this.currentSprintCount = currentSprintCount;
+    public void setCurrentHoverCount(double currentHoverCount) {
+        this.currentHoverCount = currentHoverCount;
     }
 
     public double getSprintIncrease() {

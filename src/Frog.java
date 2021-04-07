@@ -37,41 +37,67 @@ public class Frog extends  Plane {
     }
 
 
+    /**
+     *
+     * @param gg
+     * @param list
+     * @param maps
+     * @param calcmovment
+     * @param self
+     */
+    static void drawFrog(
 
-    static void drawFrog(Graphics2D gg, ArrayList<Frog> list, Map maps, boolean calcmovment, ArrayList<Player> playerArrayList) {
+            Graphics2D gg, ArrayList<Frog> list,
+            Map maps, boolean calcmovment,
+            Player self)
+
+    {
+        calcmovment=false;
 
         //safety check
         if(list!=null){
-            //Loop through each object in the arraylist
-            for(Frog a: list){
-                //  a.setUp_Image(defaultCoal.getUp_Image());
-                //only draw the object if it collides with the map to prevent unneccessary clutter
-                if(a!=null){
-                    if(calcmovment)a.calcMovement();
 
+            //Loop through each object in the arraylist
+
+            for(Frog a: list){
+
+                //only draw the object if it collides with the map to prevent unnecessary clutter
+
+                if(a!=null&&self!=null){
+
+                    if(  self!=null &&   calcmovment
+                    ){
+                        //Calculate motion of the object
+                        a.calcMovement();
+                        //Call the function to adjust motion towards the player
+                        a.moveTowardsobj(self, maps);
+                    }
+
+                    //So check if the object is overlapping with the players view then draw that object
                     if(
 
-                            a.isCollision(maps.getViewX(),maps.getViewY(),maps.getMapWidth(),maps.getMapHeight())) {
+                            a.isCollision(
+                                    maps.getViewX()     ,   maps.getViewY()     ,
+                                    maps.getMapWidth()  ,   maps.getMapHeight()
+                                        )
+                    )
+                        {
+
                         int w = a.getObjWidth();
                         int h = a.getObjHeight();
 
-                        if(calcmovment){
-                            Player target = null;
-
-                            if(playerArrayList!=null&&playerArrayList.get(0)!=null) {
-                                target = playerArrayList.get(0);
-                            }
-
-                            a.calcMovement();
-
-                            a.moveTowardsobj(target, maps);
-                        }
 
                         a.setObjHeight(h*maps.getTileHeight());
                         a.setObjWidth(w*maps.getTileWidth());
 
+
+                            /**
+                             * OMG just spent the last however long debugging,
+                             * no idea wtf the problem is, calling this overrides the Y values of the frogs
+                             */
                         //then if they exceeded any border then loop them around the value
-                        a.PlaneBorderTest(a, true, maps);
+                       // a.PlaneBorderTest(a, true, maps);
+
 
                         a.drawobj(gg, maps);
 

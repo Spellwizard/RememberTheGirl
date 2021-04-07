@@ -2,6 +2,7 @@
 
 import java.awt.*;
 import java.util.ArrayList;
+import java.util.Random;
 
 public class Map {
     /**
@@ -149,6 +150,47 @@ public class Map {
 
             }
 
+            textureBoard();
+
+        }
+
+
+        /**
+         * Add some texture to the background by systemically going
+         * through and randomly colouring various positions
+         */
+        private void textureBoard(){
+            //random number object to call when i want a random number
+            Random rn = new Random();
+            Color c = Color.cyan;
+
+            //Lets start by going through and randomly select values within the board size and change their colours randomly
+
+            int number_of_texturedBlocks= (tileList.size()*tileList.get(0).size());
+
+            //lets just loop through down based on the number of random spots to select
+            for (int i=number_of_texturedBlocks;i>0;i--){
+
+                //just select a random y and random x within the range
+
+                int random_X = rn.nextInt(tileList.size());
+                int random_Y = rn.nextInt(tileList.get(0).size());
+
+                //Randomly set each R,G,B to random colours within bounds 0 to 255
+                //thought i was funny on the spelling :)
+                int random_Colour= rn.nextInt(100)+120;
+                int random_Colur= rn.nextInt(100)+120;
+                int random_Color= 0;
+
+                tileList.get(random_X).get(random_Y).setObjColour(
+                        new Color(
+                                random_Colour
+                                ,random_Colur,
+                                random_Color
+                        ));
+
+            }
+
 
         }
 
@@ -264,7 +306,7 @@ public class Map {
      * @param  targetx - x coordinate (assumes positive)
      * @param targety - y coordinate (assumes positive)
      */
-    public SolidObject CollidedTile(int targetx, int targety, Map gameMap) {
+    public SolidObject CollidedTile(int targetx, int targety) {
         SolidObject output = null;
 
         for(int i = 0; i< tileList.size(); i ++){

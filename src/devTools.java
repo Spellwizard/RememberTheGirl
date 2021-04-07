@@ -2,7 +2,6 @@
 
 import java.awt.*;
 import java.awt.event.KeyEvent;
-import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 
 public class devTools {
@@ -38,7 +37,7 @@ public class devTools {
                                          , int roundCount, boolean graphicsOn,
                                          Map gameMap,
                                          ArrayList<Building> buildingsList,
-                                         ArrayList<Player> playerList, ArrayList<Frog> frogList
+                                         Player self, ArrayList<Frog> frogList
             ){
             //  SCOREBOARD
 
@@ -65,9 +64,8 @@ public class devTools {
             posy+=25;
 
 
-            if(playerList!=null){
-                for(Player john: playerList) {
-                    String line = "Player: "+getVars_Player(john, gameMap,true, true, true, false, false, false, true, false
+            if(self!=null){
+                    String line = "Player: "+getVars_Player(self, gameMap,true, true, true, false, false, false, true, false
                     ,false, false, false, false, true, true,true);
 
 
@@ -77,10 +75,10 @@ public class devTools {
                     posy+=15;
 
                     if(
-                            playerList.get(0).getProjectileArrayList()!=null
+                            self.getProjectileArrayList()!=null
 
                     ) {
-                        ArrayList<Projectile> projectileList = playerList.get(0).getProjectileArrayList();
+                        ArrayList<Projectile> projectileList = self.getProjectileArrayList();
 
                         for (int i = projectileList.size()-1;i>=0;i--) {
 
@@ -91,27 +89,28 @@ public class devTools {
                             gg.drawString(sub_line
                                     , 50, 50 + posy);
                             posy += 15;
-                        }
+
                     }
 
                 }
             }
 
 
+        if(frogList!=null)
+            for(Plane john: frogList) {
+                String line = "Frog: "+getVars_Plane(john,gameMap,true, false, true,
+                        false, true, false, true, false,
+                        false,false,true,false);
+                gg.drawString(line
+                        , 50, 50+posy);
+                posy+=15;
+            }
 
 
                 if (false) {
 
 
-                    if(frogList!=null)
-                        for(Plane john: frogList) {
-                            String line = "Frog: "+getVars_Plane(john,gameMap,true, false, true,
-                                    false, true, false, true, false,
-                                    false,false,true,false);
-                            gg.drawString(line
-                                    , 50, 50+posy);
-                            posy+=15;
-                        }
+
 
 
                     /**
@@ -137,7 +136,7 @@ public class devTools {
      */
     protected void calcCommands(KeyEvent e,  boolean graphicsOn,boolean gamePaused,
                                 Map gameMap,
-                                       ArrayList<Player> playerList
+                                       Player self
     ) {
 
         if (isDebug) {
@@ -336,7 +335,7 @@ public class devTools {
             if(obj.getProjectileArrayList()!=null)answer+=" ProjCount: "+obj.getProjectileArrayList().size();
         }
         if(Sprint){
-            answer+= " Sprint: "+obj.getCurrentSprintCount()+"/"+obj.getMAXSPRINTSPEED()+" IsRunning: "+obj.isRunning();
+            answer+= " Sprint: "+obj.getCurrentHoverCount()+"/"+obj.getMAXSPRINTSPEED()+" IsRunning: "+obj.isHovering();
         }
 
         if(isMouse){

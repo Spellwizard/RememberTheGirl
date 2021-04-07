@@ -147,7 +147,7 @@ public class Plane extends MovingObject {
      *
      *                      --------Area: B------
      *         (0,0)                                    (x,0)
-     *     I                                                    I
+     *     I                                                     I
      *  Area: A                                                  Area: D
      *    I                                                      I
      *    I                                                      I
@@ -164,14 +164,19 @@ public class Plane extends MovingObject {
         //Test Area A to determine if a horizonal adjustment is needed
 
         if(inArea_A(john)){
+            System.out.println("Plane.PlaneBorderTest = inArea_A true");
 
             //reverse object motion if reverseDirection is true
 
             if(reverseDirection){
                 john.setObjHSpeed(-john.getObjHSpeed());
             }
-
-            john.setPosX(1);
+            //now loop the player to the other end of the map
+            john.setPosX(
+                    ( gameMap.getMapWidth())
+                    -
+                            (john.getObjWidth()*gameMap.getTileWidth()+50)
+                    );
 
         }
 
@@ -179,16 +184,17 @@ public class Plane extends MovingObject {
 
         if(inArea_D(john,gameMap)){
 
+            System.out.println("Plane.PlaneBorderTest = inArea_D true");
+
             //reverse object motion if reverseDirection is true
 
             if(reverseDirection){
                 john.setObjHSpeed(-john.getObjHSpeed());
             }
 
+            //loop the layer to the other side of the map
             john.setPosX(
-                    gameMap.getMapWidth() -
-                            (   1+(john.getObjWidth()*gameMap.getTileWidth())   )
-
+                    (john.getObjWidth()*gameMap.getTileWidth())
             );
 
         }
@@ -196,6 +202,8 @@ public class Plane extends MovingObject {
         //Test Area B to determine if a Vertical adjustment is needed
 
         if(inArea_B(john)){
+
+            System.out.println("Plane.PlaneBorderTest = inArea_B true");
 
             //reverse object motion if reverseDirection is true
 
@@ -211,19 +219,20 @@ public class Plane extends MovingObject {
 
         if(inArea_C(john,gameMap)){
 
+            System.out.println("Plane.PlaneBorderTest = inArea_C true");
+
             //reverse object motion if reverseDirection is true
 
             if(reverseDirection){
                 john.setObjVSpeed(-john.getObjVSpeed());
             }
 
+            //Now adjust the Y position
             john.setPosY(   gameMap.getMapHeight()  -
                     (john.getObjHeight()*gameMap.getTileHeight())
             );
 
         }
-
-
 
         return false;
 
@@ -284,10 +293,22 @@ public class Plane extends MovingObject {
     private boolean inArea_C(MovingObject john, Map gameMap){
 
         if(
-                (   john.getActualPosY()    +   (john.getObjHeight()*gameMap.getTileHeight()) )
+                (
+                        john.getActualPosY()    +
+                                (john.getObjHeight()
+                                        *
+                                        gameMap.getTileHeight()) )
                         >
                         gameMap.getMapHeight()
         ){
+            System.out.println("Plane.InArea_C: "+
+                            john.getActualPosY()+" + ("+
+                            john.getObjHeight()+
+                            " * "+
+                                    gameMap.getTileHeight()+") > "+
+                    gameMap.getMapHeight()
+
+                    );
 
             return true;
 
